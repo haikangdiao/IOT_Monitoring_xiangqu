@@ -1,0 +1,14 @@
+TECH = M2
+COMPILER_PATH = C:/CMstudio/CamelStudio/compiler/bin
+TARGET = Zigbee_sensor
+TARGET_ADDRESS = 10000000
+DATA_ADDRESS = 01000010
+RODATA_ADDRESS = 
+ARCHITECT = standalone
+AUTOLOAD = false
+C_SOURCES = main.c uart1.c U1_string.c sensor.c uart2.c U2_string.c zigbee.c func.c
+//A_SOURCES = 
+//HEADERS = 
+//DEBUG = 
+//CUSTOM_LIBRARY = 
+//LIBRARY = 

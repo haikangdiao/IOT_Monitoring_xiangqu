@@ -1,0 +1,43 @@
+char nb_re[3] = "OK";
+char nb_beg[3] = "AT";  //test nbiot
+char nb_beg_re[3] = "OK";
+char nb_cnact[21] = "AT+CNACT=1,\"cmnbiot\""; //set nbiot net APN
+char nb_cnact_re[21] = "OK\n\n+APP PDP: ACTIVE";  
+char nb_cmauth[71] = "AT+CMAUTH=\"a1Ex1aw7XM5\",\"SIMiot001\",\"ROxw2w7eeN8JyIhlQJJfhgPGu2vbRcwz\""; //set productkey
+char nb_cmauth_re[3] = "OK";
+char nb_cmpara[29] = "AT+CMPARA=\"KEEPALIVE\",60000"; //set activate time
+char nb_cmpara_re[3] = "OK";
+char nb_cmconn[10] = "AT+CMCONN";//connect aliyun, need to wait 1m;
+char nb_cmconn_re[3] = "OK";
+char nb_cmsub[20] = "AT+CMSUB=\"update\",1"; //set push data
+char nb_cmsub_re[3] = "OK";
+char nb_cmyield[16] = "AT+CMYIELD=2000";  //push state
+char nb_cmtield_re[3] = "OK";
+char nb_cmpub[60] = "AT+CMPUB=\"update\",1,\""; // + "data" ,push data. e.g. AT+CMPUB="update",1,"hello"
+
+ProductKey: a1Ex1aw7XM5
+DeviceName: SIMiot001
+DeviceSecret: ROxw2w7eeN8JyIhlQJJfhgPGu2vbRcwz
+
+AT+CNACT=1,"cmnbiot"    //开启无线连接 参数cmnet 为APN，此参数需要根据不同卡设置不同的APN 值
+OK
++APP PDP: ACTIVE
+
+AT+CNACT?     //获取本地IP
++CNACT: 1,"10.181.182.177"
+OK
+
+AT+CMAUTH="a1Ex1aw7XM5","SIMiot001","ROxw2w7eeN8JyIhlQJJfhgPGu2vbRcwz"  //设备鉴权
+
+AT+CMPARA="KEEPALIVE",60000  //设置MQTT 相关参数
+OK
+
+AT+CMCONN  //MQTT 建立
+
+AT+CMSUB="get",1
+
+AT+CMSUB="/a1Ex1aw7XM5/SIMiot001/update",1  //订阅消息
+
+AT+CMYIELD=2000   //获取订阅状态
+
+AT+CMPUB="update",1,"“
