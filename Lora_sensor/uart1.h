@@ -1,7 +1,7 @@
 #ifndef __UART1_H__
 #define __UART1_H__
 
-#define U1_Re_Time_out  0xFFFF
+#define U1_Re_Time_out  0xFFFFF
 
 unsigned char U1_flag_time_over;
 
@@ -17,5 +17,7 @@ unsigned char U1_flag_time_over;
 void U1_Init();
 char U1_Rec();
 char U1_Send(char*);
-
+void U1_SendInt(int c);
+int U1_strSend(char* pc_str,int i_len);
+int U1_strRec(char* pc_str,int i_len);
 #endif //__UART0_H__

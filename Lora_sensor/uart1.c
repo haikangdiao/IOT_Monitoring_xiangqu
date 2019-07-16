@@ -1,4 +1,4 @@
-#include <mcu.h>
+#include "mcu.h"
 #include "uart1.h"
 
 //extern unsigned char U1_flag_time_over = 0;
@@ -43,4 +43,31 @@ char U1_Send(char* pc_ch){
 
     MemoryWrite32(U1_WRITE_REG,*pc_ch);
     return *pc_ch;
+}
+
+void U1_SendInt(int c){
+  while(MemoryRead32(U1_BUSY_REG)){}  //checking if Tx is busy
+  MemoryWrite32(U1_WRITE_REG,c);      //sending c out
+}
+
+int U1_strSend(char* pc_str,int i_len){
+    while(i_len--){
+        U1_Send(pc_str);
+        if(U1_flag_time_over){
+            break;
+        }
+        ++pc_str;
+    }
+    return i_len;
+}
+
+int U1_strRec(char* pc_str,int i_len){
+    int i_count = 0;
+    for(;i_count < i_len;++i_count){
+        pc_str[i_count] = U1_Rec();
+        if(U1_flag_time_over){
+            break;
+        }
+    }
+    return i_count;
 }

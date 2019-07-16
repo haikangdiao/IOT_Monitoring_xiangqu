@@ -1,6 +1,6 @@
 #include <mcu.h>
 #include "uart2.h"
-
+#include "str.h"
 //extern unsigned char U2_flag_time_over = 0;
 
 //init uart2
@@ -43,4 +43,32 @@ char U2_Send(char* pc_ch){
 
     MemoryWrite32(U2_WRITE_REG,*pc_ch);
     return *pc_ch;
+}
+
+void U2_SendInt(int c){
+  while(MemoryRead32(U2_BUSY_REG)){}  //checking if Tx is busy
+  MemoryWrite32(U2_WRITE_REG,c);      //sending c out
+}
+
+int U2_strSend(char* pc_str,int i_len){
+    while(i_len--){
+        U2_Send(pc_str);
+        if(U2_flag_time_over){
+            break;
+        }
+        ++pc_str;
+    }
+    return i_len;
+}
+
+int U2_strRec(char* pc_str,int i_len){
+    int i_count = 0;
+    for(;i_count < i_len;++i_count){
+        pc_str[i_count] = U2_Rec();
+        if(U2_flag_time_over){
+            puts("no data\n");
+            break;
+        }
+    }
+    return i_count;
 }

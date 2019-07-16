@@ -1,5 +1,16 @@
+/*--------------------------------------------------------------------
+ * TITLE: sensor control function
+ * AUTHOR: haikang lihaoqian
+ * DATE CREATED: 2019/7/16
+ * FILENAME: sensor.c
+ * PROJECT: IOT_Monitoring_System
+ * DESCRIPTION: 
+ *--------------------------------------------------------------------*/
+
 #include"sensor.h"
-#include<str.h>
+#include"str.h"
+#include "uart1.h"
+
 
 int Hex_to_Char(int i_hex,char* pc_str){
     int pos = 0;
@@ -25,161 +36,114 @@ int Hex_to_Char(int i_hex,char* pc_str){
         ++pos;
         tens /= 10;
     }
-    // while(tens){
-    //     tmp = i_hex / tens;
-    //     if(tmp){
-    //         pc_str[pos] = tmp + 0x30;
-    //         i_hex -= tmp * tens;
-    //         ++pos;
-    //     }
-    //     tens /= 10;
-    // }
     pc_str[pos] = '\0';
     return pos;
 }
 
-int proc_data(char* pc_str,int i_len,char* c_re){
+/**
+ * @brief 
+ * This function is to process the data from the sensor
+ * @param Sensor_Back_data              the data from the sensor 
+ * @param Data_len                      length of the data  
+ * @param Environment_data              the data that was processed        
+ * @return                              the flag that Whether the function is successfully executed. 0 is successfully
+ */
+int proc_data(char* Sensor_Back_data,int Data_len,char* Environment_data){
     int pos = 0; 
-    int tmp;
-    // for(int i = 0;i < 43;++i){
-    //         putch(pc_str[i]);
-    //     }
+    int Temp,Humi,PM2_5,CO2,VOC,HCHO;
 
-    //处理温度
-    if(0x22 == pc_str[6]){
-        if(0x00 == pc_str[7]){
-            if(0x01 == pc_str[8]){
-                if(0x02 == pc_str[9]){
-                    // putch(pc_str[10]);
-                    // putch(pc_str[11]);
-                    tmp = (0x000000FF & pc_str[11]) | (0x0000FF00 & (pc_str[10] << 8));
-                    if(0x7F < pc_str[10]){
-                        tmp = 0xFFFF0000 | tmp;
-                    }
-                    // putch(tmp);
-                    // putch(tmp >> 8);
-                    // putch(tmp >> 16);
-                    // putch(tmp >> 24);
-
-                    // char buff[5] = "\0";
-                    // int z = 0;
-                    pos += Hex_to_Char(tmp,c_re + pos);
-                    c_re[pos + 1] = ',';
-                    c_re[pos] = c_re[pos - 1];
-                    c_re[pos - 1] = '.';
-                    pos += 2;
-                    // for(int i = 0;i < pos;++i){
-                    //     putch(c_re[i]);
-                    // }
-
-                    // int i_count = Hex_to_Char(0x00EB,buff);
-                    // for(int i =0;i < i_count;++i){
-                    //     putch(buff[i]);
-                    // }
-                }
-            }
-        }
+    if ((Sensor_Back_data[6]==0x22) && (Sensor_Back_data[7]==0x00) && (Sensor_Back_data[8]==0x01) && (Sensor_Back_data[9]==0x02))
+    {
+        Temp=(0x000000FF & Sensor_Back_data[11]) | (0x0000FF00 & (Sensor_Back_data[10] << 8));
+        Environment_data[0] = Sensor_Back_data[10];
+        Environment_data[1] = Sensor_Back_data[11];
     }
-
-    //处理湿度
-    if(0x22 == pc_str[12]){
-        if(0x00 == pc_str[13]){
-            if(0x03 == pc_str[14]){
-                if(0x02 == pc_str[15]){
-                    tmp = (0x000000FF & pc_str[17]) | (0x0000FF00 & (pc_str[16] << 8));
-                    if(0x7F < pc_str[16]){
-                        tmp = 0xFFFF0000 | tmp;
-                    }
-                    // putch(tmp);
-                    // putch(tmp >> 8);
-                    // putch(tmp >> 16);
-                    // putch(tmp >> 24);
-
-                    pos += Hex_to_Char(tmp,c_re + pos);
-                    c_re[pos + 2] = ',';
-                    c_re[pos + 1] = '%';
-                    c_re[pos] = c_re[pos - 1];
-                    c_re[pos - 1] = '.';
-                    pos += 3;
-                }
-            }
-        }
-    }
-
-    //处理CO2
-    if(0x22 == pc_str[24]){
-        if(0x00 == pc_str[25]){
-            if(0x06 == pc_str[26]){
-                if(0x02 == pc_str[27]){
-                    tmp = (0x000000FF & pc_str[29]) | (0x0000FF00 & (pc_str[28] << 8));
-                    if(0x7F < pc_str[28]){
-                        tmp = 0xFFFF0000 | tmp;
-                    }
-                    // putch(tmp);
-                    // putch(tmp >> 8);
-                    // putch(tmp >> 16);
-                    // putch(tmp >> 24);
-                    
-                    pos += Hex_to_Char(tmp,c_re + pos);
-                    c_re[pos] = ',';
-                    ++pos;
-                }
-            }
-        }
-    }
-    return pos;
-}
-
-int clean_check_date(char* pc_str){
-    int i,j,z;
-    char checksum = 0;
-    for(i = 0;i < 5;++i){
-        if(0xEF == sensor_buff[i]){
-            if(0xFE == sensor_buff[i + 1]){
-                for(j = 0;j < 49;++j,++i){
-                    pc_str[j] = sensor_buff[i];
-                    checksum += pc_str[j];
-                }
-                pc_str[j] = sensor_buff[i];
-                break;
-            }
-        }
-    }
-    putch('\n');
-    for(z = 0;z < 50;++z){
-        putch(pc_str[z]);
-    }
-    putch(checksum);
-    if(checksum == pc_str[z - 1]){
+    else{
+        puts("Temperature data is wrong\n");
         return 1;
-    }else{
-        return 0;
     }
+        
+
+    if ((Sensor_Back_data[12]==0x22) && (Sensor_Back_data[13]==0x00) && (Sensor_Back_data[14]==0x03) && (Sensor_Back_data[15]==0x02))
+    {
+        Humi=(0x000000FF & Sensor_Back_data[17]) | (0x0000FF00 & (Sensor_Back_data[16] << 8));
+        Environment_data[2] = Sensor_Back_data[16];
+        Environment_data[3] = Sensor_Back_data[17];
+    }
+    else{
+        puts("Humidity data is wrong\n");
+        return 2;
+    }
+        
+
+    if ((Sensor_Back_data[18]==0x22) && (Sensor_Back_data[19]==0x00) && (Sensor_Back_data[20]==0x05) && (Sensor_Back_data[21]==0x02))
+    {
+        PM2_5=(0x000000FF & Sensor_Back_data[23]) | (0x0000FF00 & (Sensor_Back_data[22] << 8));
+        Environment_data[4] = Sensor_Back_data[22];
+        Environment_data[5] = Sensor_Back_data[23];
+    }
+    else{
+        puts("PM2_5 data is wrong\n");
+        return 3;
+    }
+        
+
+    if ((Sensor_Back_data[24]==0x22) && (Sensor_Back_data[25]==0x00) && (Sensor_Back_data[26]==0x06) && (Sensor_Back_data[27]==0x02))
+    {
+        CO2=(0x000000FF & Sensor_Back_data[29]) | (0x0000FF00 & (Sensor_Back_data[28] << 8));
+        Environment_data[6] = Sensor_Back_data[28];
+        Environment_data[7] = Sensor_Back_data[29];
+    }
+    else{
+        puts("CO2 data is wrong\n");
+        return 4;
+    }
+        
+
+    if ((Sensor_Back_data[30]==0x22) && (Sensor_Back_data[31]==0x00) && (Sensor_Back_data[32]==0x09) && (Sensor_Back_data[33]==0x02))
+    {
+        VOC=(0x000000FF & Sensor_Back_data[35]) | (0x0000FF00 & (Sensor_Back_data[34] << 8));
+        Environment_data[8] = Sensor_Back_data[34];
+        Environment_data[9] = Sensor_Back_data[35];
+    }
+    else{
+        puts("VOC data is wrong\n");
+        return 5;
+    }
+        
+
+    if ((Sensor_Back_data[42]==0x22) && (Sensor_Back_data[43]==0x00) && (Sensor_Back_data[44]==0x07) && (Sensor_Back_data[45]==0x02))
+    {
+        HCHO=(0x000000FF & Sensor_Back_data[47]) | (0x0000FF00 & (Sensor_Back_data[46] << 8));
+        Environment_data[10] = Sensor_Back_data[46];
+        Environment_data[11] = Sensor_Back_data[47];
+    }
+    else{
+        puts("HCHO data is wrong\n");
+        return 6;
+    }
+    return 0;
 }
 
-
-int get_sensor_data(int i_len){
-    char c_sensor_cmd[6] = {0xEF,0xFE,0x01,0x02,0xF0};
-    puts(c_sensor_cmd);
-    U1_strSend(c_sensor_cmd,5);
-    int i_count = U1_strRec(sensor_buff,i_len);
-    // for(int i = 0;i < i_count;++i){
-    //     putch(sensor_buff[i]);
-    // }
-    return i_count;
-}
-
-int get_sensor(char* pc_str,int i_len){
-    int i_count = 10;
-    int i_data = 0;
-    do{
-        i_data = get_sensor_data(i_len + 5);
-    }while(((i_data < i_len) || !clean_check_date(pc_str)) && --i_count);
-    putch(i_count);
-    putch(i_data);
-    if(i_count){
-        return 1;
-    }else{
-        return 0;
-    }
+/**
+ * @brief 
+ * This function is to get the data from the sensor
+ * @param Sensor_Back_data              the data from the sensor 
+ * @param Data_len                      length of the data         
+ * @return                              the flag that Whether the function is successfully executed. 0 is successful
+ */
+int get_sensor_data(char* Sensor_Back_data, int Data_len){
+    U1_SendInt(0xEF);
+	U1_SendInt(0xFE);
+	U1_SendInt(0x01);
+	U1_SendInt(0x02);
+	U1_SendInt(0xF0);
+    U1_strRec(Sensor_Back_data, 50);
+    if((Sensor_Back_data[0]==0xFF) && (Sensor_Back_data[1]==0xFF) && (Sensor_Back_data[2]==0xEF) && (Sensor_Back_data[3]==0xFE)){
+        for (int sensor_i=0; sensor_i < 48;sensor_i++){
+            Sensor_Back_data[sensor_i] = Sensor_Back_data[sensor_i + 2];
+        }
+    }       //make sure that the data starts with 0xEFFE
+    
+    return 0;
 }

@@ -1,7 +1,7 @@
 #ifndef __UART2_H__
 #define __UART2_H__
 
-#define U2_Re_Time_out  0xFFFF
+#define U2_Re_Time_out  0xFFFFFF
 
 unsigned char U2_flag_time_over;
 
@@ -17,5 +17,8 @@ unsigned char U2_flag_time_over;
 void U2_Init();
 char U2_Rec();
 char U2_Send(char*);
+void U2_SendInt(int c);
+int  U2_strSend(char* pc_str,int i_len);
+int  U2_strRec(char* pc_str,int i_len);
 
 #endif //__UART0_H__

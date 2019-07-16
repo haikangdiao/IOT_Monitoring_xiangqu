@@ -2,6 +2,7 @@
 #define __FUNC_H__
 
 void delayms();
-char* strcomb(char* pc_ori,char* pc_add,int i_alen);
+int power(int a, int b);
+void hexToDec(unsigned int hex, char *dec);
 
 #endif
