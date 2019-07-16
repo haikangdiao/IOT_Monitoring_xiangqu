@@ -8,10 +8,6 @@
 
 void user_interrupt(){}
 
-// char str[10] = "0123456789";
-
-// char c = '3';
-
 int main(){
     U1_strInit();
     U2_strInit();
@@ -30,7 +26,7 @@ int main(){
         }
 
 
-        zig_send(buff,sensor_len);
+        Lora_send(buff,sensor_len);
 
     }
     return 0;
