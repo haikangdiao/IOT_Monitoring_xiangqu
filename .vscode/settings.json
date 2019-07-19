@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "uart1.h": "c"
+        "uart1.h": "c",
+        "spi_master(1).C": "cpp"
     }
 }

@@ -71,7 +71,7 @@ int Modify_Configuration(char* Modify_Configuration_Return, int adress_high, int
     for (int i = 0; i < 67;i++){
         Modify_Configuration_data[6 + i] = New_Configuration_data[i];
     }
-    Modify_Configuration_data[73] = 0xAA;       //this message need to add the very long configuration data 
+    Modify_Configuration_data[73] = 0xAA;       //this message need to add very long configuration data 
     U2_strSend(Modify_Configuration_data, 74);
     int result = U2_strRec(Modify_Configuration_Return, 7);
     
@@ -201,7 +201,7 @@ int Lora_test(){
 int Lora_Data_Receive(char* Receive_data, int Receive_data_len){
     int data_len = U2_strRec(Receive_data, Receive_data_len);
     if(data_len == Receive_data_len){
-        puts("successfully receive\n");
+        puts("Lora successfully receive\n");
         return 1;
     }
     return 0;
