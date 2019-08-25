@@ -45,7 +45,7 @@ int Hex_to_Char(int i_hex,char* pc_str){
  * This function is to process the data from the sensor
  * @param Sensor_Back_data              the data from the sensor 
  * @param Data_len                      length of the data  
- * @param Sensor_Upload_message              the data that was processed        
+ * @param Sensor_Upload_message         the data that was processed        
  * @return                              the flag that Whether the function is successfully executed. 0 is successfully
  */
 int proc_data(char* Sensor_Back_data,int Data_len,char* Sensor_Upload_message){
@@ -128,10 +128,11 @@ int proc_data(char* Sensor_Back_data,int Data_len,char* Sensor_Upload_message){
         puts("HCHO data is wrong\n");
         return 6;
     }
-    for (int i = 0; i < 14;i++){
+    Sensor_Upload_message[4] = 20;
+    for (int i = 0; i < Sensor_Upload_message[4];i++){
         Check_Byte = Sensor_Upload_message[5 + i] + Check_Byte;
     }
-    Sensor_Upload_message[4] = 20;
+    
     Sensor_Upload_message[25] = Check_Byte;
     Sensor_Upload_message[26] = 0XEF;
     Sensor_Upload_message[27] = 0XEF;     //This is data part of message that received from the sensor         

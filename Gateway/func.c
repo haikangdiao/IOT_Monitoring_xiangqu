@@ -1,7 +1,6 @@
 #include "func.h"
-#include "debug_log.h"
 
-//延时
+
 void delay(){
     for(int i = 0;i < 0xFF;++i){
         for(int j = 0;j < 0xFF;++j){}
@@ -15,12 +14,10 @@ void delay(){
  * @return                 length of the pc_str
  ****************************/
 int strlen_u(char* pc_str){
-    // DEBUG_STR(pc_str);
     char* tmp = pc_str;
     while('\0' != (*tmp)){
        ++tmp;
     }
-    // DEBUG_INT(tmp - pc_str);
     return (tmp - pc_str);
 }
 
@@ -32,7 +29,7 @@ int strlen_u(char* pc_str){
  * @return                 pointer of the pc_ori that is filled
  ****************************/
 char* strcpy_u(char* pc_ori,char* pc_add){
-    // DEBUG_STR(pc_add);
+
     while('\0' != (*pc_add)){
         (*pc_ori) = (*pc_add);
         ++pc_ori;
@@ -62,4 +59,22 @@ char* char_memset(char* buff,char num,int count){
         (*buff) = num;
         ++buff;
     }
+}
+
+/*****************************
+ * @brief
+ * This function is tu debug the code
+ * @param      debug_value       the value that need to be printed
+ * @return                       debug_value
+ *****************************/
+int debug_func(int debug_value){
+    puts("File:");
+    puts(__FILE__);
+    puts("\nfunction:");
+    puts(__FUNCTION__);
+    puts("\n");
+    puts("msg:");
+    puts(xtoa(debug_value));
+    puts("\n");
+    return debug_value;
 }

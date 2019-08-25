@@ -8,8 +8,9 @@
  *--------------------------------------------------------------------*/
 
 #include"Lora.h"
-#include"str.h"
 #include"uart2.h"
+#include"str.h"
+
 
 /**
  * @brief 
@@ -37,11 +38,11 @@ int Read_Local_Configuration(char* Local_Configuration_Return){
  * This function is to read remote configuration of the Lora
  * @param Remote_Configuration_Return   the configuration was returned from the Lora
  * @param adress_high                   the high byte adress of remote lora module that you want to read    
- * @param adress_low                    the low byte adress of remote lora module that you want to read          
+ * @param adress_low                    the low byte adress  of remote lora module that you want to read          
  * @return                              the flag that Whether the function is successfully executed. 1 is successfully
  */
 int Read_Remote_Configuration(char* Remote_Configuration_Return, int adress_high, int adress_low){
-    char Remote_Configuration_data[7] = {0xAB, 0XBC, 0XCD, 0XD2, adress_high, adress_low, 0XAA};
+    char Remote_Configuration_data[8] = {0xAB, 0XBC, 0XCD, 0XD2, adress_high, adress_low, 0XAA};
     U2_strSend(Remote_Configuration_data, 7);
     int result = U2_strRec(Remote_Configuration_Return, 77);
     
@@ -61,7 +62,7 @@ int Read_Remote_Configuration(char* Remote_Configuration_Return, int adress_high
  * @return                              the flag that Whether the function is successfully executed. 1 is successfully
  */
 int Modify_Configuration(char* Modify_Configuration_Return, int adress_high, int adress_low, char* New_Configuration_data){
-    char Modify_Configuration_data[74];
+    char Modify_Configuration_data[75];
     Modify_Configuration_data[0] = 0xAB;
     Modify_Configuration_data[1] = 0xBC;
     Modify_Configuration_data[2] = 0xCD;
@@ -94,7 +95,7 @@ int Module_Search(char* Module_Search_Return){}
  * @return                                  the flag that Whether the function is successfully executed. 1 is successfully
  */
 int Module_Reset(char* Module_Reset_Return, int adress_high, int adress_low){
-    char Module_Reset_data[7] = {0xAB, 0XBC, 0XCD, 0XD6, adress_high, adress_low, 0XAA};
+    char Module_Reset_data[8] = {0xAB, 0XBC, 0XCD, 0XD6, adress_high, adress_low, 0XAA};
     U2_strSend(Module_Reset_data, 7);
     int result = U2_strRec(Module_Reset_Return, 7);
     
@@ -223,7 +224,7 @@ int Lora_message_check(char* Lora_sensor_message,int flag, int Sensor_message_le
     if(Lora_sensor_message[4]!=(Sensor_message_len-8))   
         return 1;
 
-    for (int i = 0; i < Lora_sensor_message[4]; i++){
+    for (int i = 0; i < Lora_sensor_message[4];i++){
         Check_Byte = Lora_sensor_message[5 + i] + Check_Byte;
     }
     Check_Byte = Check_Byte & 0xFF;

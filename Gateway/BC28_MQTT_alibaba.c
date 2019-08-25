@@ -1,10 +1,9 @@
 #include"BC28_MQTT_alibaba.h"
 #include"uart2.h"
 #include<mcu.h>
-#include"U2_string.h"
 #include"Alibaba_iot.h"
 #include"func.h"
-#include"debug_log.h"
+
 
 #define BC28_AT_REBOOT           "AT+NRB\n"
 #define BC28_AT_NET_CONN         "AT+CGATT=1\n"
@@ -25,16 +24,6 @@
 #define BC28_AT_FAIL             "ERROR"
 #define BC28_AT_URC_QMTRECV      "+QMTRECV:"
 #define BC28_AT_URC_QMTSTAT      "+QMTSTAT:"
-
-/****************************
- * @brief
- * This function initial the communication link for AT cmd.
- * @param        void
- * @return       void
- ****************************/
-void HAL_AT_CONN_init(){
-    U2_Init();
-}
 
 /****************************
  * @brief
@@ -276,7 +265,7 @@ char BC28_Alibaba_MQTT_conn(char* product_key, char* device_name, char* device_s
     HAL_AT_CONN_send(cmd,strlen_u(cmd));
     len = HAL_AT_CONN_recv(cmd,100);
     // DEBUG_STR(cmd);
-    // DEBUG_INT(len);
+    // debug_func(len);
     flag = BC28_AT_check_status(cmd,len);
     if(flag){
         return flag; 
@@ -496,5 +485,21 @@ int BC28_Alibaba_MQTT_URC(char* msg,int msg_len){
             }          
         }
     }
+    return 0;
+}
+
+
+
+int BC28_Aliyun_connect(){
+
+    debug_func(BC28_init());
+    debug_func(BC28_setting_eDRX(0,5,0));
+    debug_func(BC28_setting_PSM(0,0,0));
+    debug_func(BC28_setting_net(0));
+    debug_func(BC28_status_net());
+    debug_func(BC28_Alibaba_MQTT_conn(PRODUCT_KEY,DEVICE_NAME,DEVICE_SECRET));
+    debug_func(BC28_Alibaba_MQTT_sub(TOPIC_GET,"0"));
+    debug_func(BC28_Alibaba_MQTT_pub(TOPIC_UPDATE,"I`m rebot",9));
+
     return 0;
 }

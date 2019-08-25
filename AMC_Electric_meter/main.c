@@ -1,29 +1,29 @@
 /*--------------------------------------------------------------------
- * TITLE: main function for sensor devices
+ * TITLE: main function for AMC Electric meter 
  * AUTHOR: haikang
- * DATE CREATED: 2019/7/19
+ * DATE CREATED: 2019/8/20
+ * 
  * FILENAME: main.c
  * PROJECT: IOT_Monitoring_System
  * DESCRIPTION: 
  *--------------------------------------------------------------------*/
 
-#include <mcu.h>
 #include<str.h>
+#include<mcu.h>
 #include"uart1.h"
 #include"uart2.h"
-#include"sensor.h"
 #include"Lora.h"
+#include"amc.h"
 #include"func.h"
 
 
-#define Sensor_Back_data_len            50
-#define Device_type                     0x01    
+#define AMC_Device_Adress               0X01
+#define Device_type                     0x02                                            //sensor's type is 01,and AMC is 02
 #define Device_ID                       0x01
 #define Device_Lora_adress_high         0X20
 #define Device_Lora_adress_low          0X02
 #define Gateway_Lora_adress_high        0x20
 #define Gateway_Lora_adress_low         0x01
-#define Upload_message_len              28
 
 char Uart2_interrupt_flag[1] = {0x0};                                                   //flag that whether there is message download from gateway
 char Lora_Downward_message[10];                                                         //message from the gateway
@@ -41,31 +41,43 @@ void user_interrupt(){
 int main(){
     U1_Init(); 
     U2_Init();
-    char Sensor_Back_data[50];
-    char Sensor_Upload_message[30]={0xFE,0xFE,Device_Lora_adress_high,Device_Lora_adress_low,0x00,Device_type,Device_ID};
+    char AMC_Back_data[25];
+    char AMC_Upload_message[30]={0xFE,0xFE,Device_Lora_adress_high,Device_Lora_adress_low,0x00,Device_type,Device_ID};
     int i,flag;
+    unsigned int AMC_Register_First_Adress, AMC_Register_Number,Upload_message_len;
 
     puts("test1 begin!\n");
     MemoryWrite32(U2_CTL0_REG, 0x11);                                                   //UART2 interrupt enable
     MemoryWrite32(0x1f800700,  0x01);                                                   //systerm interrupt enable
+    MemoryWrite32(0x1f800017, 0x271);                                                   //Modify the baud rate to 9600
     for (i = 0; i < 2000000;i++){}                                                      //delay a little time
-    get_sensor_data(Sensor_Back_data,Sensor_Back_data_len);            
-    proc_data(Sensor_Back_data, 50, Sensor_Upload_message);         
-    while(1){
-        if(Uart2_interrupt_flag[0] == 0x1){
-            if((Lora_Downward_message[2]==0xDD) && (Lora_Downward_message[3]==0xDD)){   //means that device need upload sensor message
-                
-                get_sensor_data(Sensor_Back_data,Sensor_Back_data_len);
-                flag=proc_data(Sensor_Back_data, 50, Sensor_Upload_message);
-                while(flag){                                                            //verify that the message is correct
-                    get_sensor_data(Sensor_Back_data,Sensor_Back_data_len);             //repeatedly get sensor data if the message is wrong
-                    flag=proc_data(Sensor_Back_data, 50, Sensor_Upload_message);
-                    puts("get sensor data error\n");
+
+    AMC_Register_First_Adress = 0x11;
+    AMC_Register_Number = 0x03;
+    Upload_message_len = 8 + 5 + (AMC_Register_Number * 2);                             //get the length of message
+    AMC_Read_Configuration(AMC_Device_Adress,AMC_Register_First_Adress,AMC_Register_Number,AMC_Back_data);       
+    AMC_data_proc(AMC_Back_data, (5 + AMC_Register_Number*2), AMC_Upload_message);      //get the meter's data
+
+
+        while (1)
+        {
+            if (Uart2_interrupt_flag[0] == 0x1)
+            {
+                if ((Lora_Downward_message[2] == 0xDD) && (Lora_Downward_message[3] == 0xDD))
+                {                                                                       //means that device need upload sensor message
+
+                    AMC_Read_Configuration(AMC_Device_Adress, AMC_Register_First_Adress, AMC_Register_Number, AMC_Back_data);
+                    flag = AMC_data_proc(AMC_Back_data, (5 + AMC_Register_Number * 2), AMC_Upload_message);
+                    while (flag)
+                    {                                                                   //verify that the message is correct
+                        AMC_Read_Configuration(AMC_Device_Adress, AMC_Register_First_Adress, AMC_Register_Number, AMC_Back_data);
+                        flag = AMC_data_proc(AMC_Back_data, (5 + AMC_Register_Number * 2), AMC_Upload_message);
+                        puts("get AMC data error\n");                                   //repeatedly get sensor data if the message is wrong
+                    }
+                    Lora_Data_Send(AMC_Upload_message, Upload_message_len, Gateway_Lora_adress_high, Gateway_Lora_adress_low);
+                    puts("send message successfully!\n");
                 }
-                Lora_Data_Send(Sensor_Upload_message, Upload_message_len, Gateway_Lora_adress_high, Gateway_Lora_adress_low);
-                puts("send message successfully!\n");
-            }
-            else{
+                else{
                 switch (Lora_Downward_message[3])                                       //other message meaning 
                 {
                 case 0x00:                                                              //gateway have received the correct message
@@ -87,7 +99,7 @@ int main(){
                     puts("another error!!!\n");
                     break;
                 }
-                Lora_Data_Send(Sensor_Upload_message, Upload_message_len, Gateway_Lora_adress_high, Gateway_Lora_adress_low);
+                Lora_Data_Send(AMC_Upload_message, Upload_message_len, Gateway_Lora_adress_high, Gateway_Lora_adress_low);
             }
             Uart2_interrupt_flag[0] = 0;                                                
             MemoryWrite32(U2_CTL0_REG, 0x11);                                          //reopen UART2 interrupt enable bit

@@ -5,14 +5,6 @@ int BC28_status_flag;
 
 /****************************
  * @brief
- * This function initial the communication link for AT cmd.
- * @param        void
- * @return       void
- ****************************/
-void HAL_AT_CONN_init();
-
-/****************************
- * @brief
  * This function send AT cmd by the communication link.
  * @param    pc_at_string     pointer of AT cmd string.
  * @param    len              length of string
