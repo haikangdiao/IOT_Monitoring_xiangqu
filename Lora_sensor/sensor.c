@@ -55,9 +55,9 @@ int proc_data(char* Sensor_Back_data,int Data_len,char* Sensor_Upload_message){
     if ((Sensor_Back_data[6]==0x22) && (Sensor_Back_data[7]==0x00) && (Sensor_Back_data[8]==0x01) && (Sensor_Back_data[9]==0x02))
     {
         Temp=(0x000000FF & Sensor_Back_data[11]) | (0x0000FF00 & (Sensor_Back_data[10] << 8));
-        Sensor_Upload_message[5] = Sensor_Back_data[8];
-        Sensor_Upload_message[6] = Sensor_Back_data[10];
-        Sensor_Upload_message[7] = Sensor_Back_data[11];
+        Sensor_Upload_message[7] = Sensor_Back_data[8];
+        Sensor_Upload_message[8] = Sensor_Back_data[10];
+        Sensor_Upload_message[9] = Sensor_Back_data[11];
     }
     else{
         puts("Temperature data is wrong\n");
@@ -68,9 +68,9 @@ int proc_data(char* Sensor_Back_data,int Data_len,char* Sensor_Upload_message){
     if ((Sensor_Back_data[12]==0x22) && (Sensor_Back_data[13]==0x00) && (Sensor_Back_data[14]==0x03) && (Sensor_Back_data[15]==0x02))
     {
         Humi=(0x000000FF & Sensor_Back_data[17]) | (0x0000FF00 & (Sensor_Back_data[16] << 8));
-        Sensor_Upload_message[8] = Sensor_Back_data[14];
-        Sensor_Upload_message[9] = Sensor_Back_data[16];
-        Sensor_Upload_message[10] = Sensor_Back_data[17];
+        Sensor_Upload_message[10] = Sensor_Back_data[14];
+        Sensor_Upload_message[11] = Sensor_Back_data[16];
+        Sensor_Upload_message[12] = Sensor_Back_data[17];
     }
     else{
         puts("Humidity data is wrong\n");
@@ -81,9 +81,9 @@ int proc_data(char* Sensor_Back_data,int Data_len,char* Sensor_Upload_message){
     if ((Sensor_Back_data[18]==0x22) && (Sensor_Back_data[19]==0x00) && (Sensor_Back_data[20]==0x05) && (Sensor_Back_data[21]==0x02))
     {
         PM2_5=(0x000000FF & Sensor_Back_data[23]) | (0x0000FF00 & (Sensor_Back_data[22] << 8));
-        Sensor_Upload_message[11] = Sensor_Back_data[20];
-        Sensor_Upload_message[12] = Sensor_Back_data[22];
-        Sensor_Upload_message[13] = Sensor_Back_data[23];
+        Sensor_Upload_message[13] = Sensor_Back_data[20];
+        Sensor_Upload_message[14] = Sensor_Back_data[22];
+        Sensor_Upload_message[15] = Sensor_Back_data[23];
     }
     else{
         puts("PM2_5 data is wrong\n");
@@ -94,9 +94,9 @@ int proc_data(char* Sensor_Back_data,int Data_len,char* Sensor_Upload_message){
     if ((Sensor_Back_data[24]==0x22) && (Sensor_Back_data[25]==0x00) && (Sensor_Back_data[26]==0x06) && (Sensor_Back_data[27]==0x02))
     {
         CO2=(0x000000FF & Sensor_Back_data[29]) | (0x0000FF00 & (Sensor_Back_data[28] << 8));
-        Sensor_Upload_message[14] = Sensor_Back_data[26];
-        Sensor_Upload_message[15] = Sensor_Back_data[28];
-        Sensor_Upload_message[16] = Sensor_Back_data[29];
+        Sensor_Upload_message[16] = Sensor_Back_data[26];
+        Sensor_Upload_message[17] = Sensor_Back_data[28];
+        Sensor_Upload_message[18] = Sensor_Back_data[29];
     }
     else{
         puts("CO2 data is wrong\n");
@@ -107,9 +107,9 @@ int proc_data(char* Sensor_Back_data,int Data_len,char* Sensor_Upload_message){
     if ((Sensor_Back_data[30]==0x22) && (Sensor_Back_data[31]==0x00) && (Sensor_Back_data[32]==0x09) && (Sensor_Back_data[33]==0x02))
     {
         VOC=(0x000000FF & Sensor_Back_data[35]) | (0x0000FF00 & (Sensor_Back_data[34] << 8));
-        Sensor_Upload_message[17] = Sensor_Back_data[32];
-        Sensor_Upload_message[18] = Sensor_Back_data[34];
-        Sensor_Upload_message[19] = Sensor_Back_data[35];
+        Sensor_Upload_message[19] = Sensor_Back_data[32];
+        Sensor_Upload_message[20] = Sensor_Back_data[34];
+        Sensor_Upload_message[21] = Sensor_Back_data[35];
     }
     else{
         puts("VOC data is wrong\n");
@@ -120,9 +120,9 @@ int proc_data(char* Sensor_Back_data,int Data_len,char* Sensor_Upload_message){
     if ((Sensor_Back_data[42]==0x22) && (Sensor_Back_data[43]==0x00) && (Sensor_Back_data[44]==0x07) && (Sensor_Back_data[45]==0x02))
     {
         HCHO=(0x000000FF & Sensor_Back_data[47]) | (0x0000FF00 & (Sensor_Back_data[46] << 8));
-        Sensor_Upload_message[20] = Sensor_Back_data[44];
-        Sensor_Upload_message[21] = Sensor_Back_data[46];
-        Sensor_Upload_message[22] = Sensor_Back_data[47];
+        Sensor_Upload_message[22] = Sensor_Back_data[44];
+        Sensor_Upload_message[23] = Sensor_Back_data[46];
+        Sensor_Upload_message[24] = Sensor_Back_data[47];
     }
     else{
         puts("HCHO data is wrong\n");
@@ -131,10 +131,10 @@ int proc_data(char* Sensor_Back_data,int Data_len,char* Sensor_Upload_message){
     for (int i = 0; i < 14;i++){
         Check_Byte = Sensor_Upload_message[5 + i] + Check_Byte;
     }
-    Sensor_Upload_message[23] = 0X14;
-    Sensor_Upload_message[24] = Check_Byte;
-    Sensor_Upload_message[25] = 0XEF;
-    Sensor_Upload_message[26] = 0XEF;     //This is data part of message that received from the sensor         
+    Sensor_Upload_message[4] = 20;
+    Sensor_Upload_message[25] = Check_Byte;
+    Sensor_Upload_message[26] = 0XEF;
+    Sensor_Upload_message[27] = 0XEF;     //This is data part of message that received from the sensor         
     return 0;
 }
 

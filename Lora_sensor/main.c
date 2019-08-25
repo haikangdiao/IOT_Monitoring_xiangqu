@@ -20,7 +20,7 @@
 #define Device_Lora_adress_low          0X02
 #define Gateway_Lora_adress_high        0x20
 #define Gateway_Lora_adress_low         0x01
-#define Upload_message_len              26
+#define Upload_message_len              28
 
 char Uart2_interrupt_flag[1] = {0x0};                   //flag that whether there is message download from gateway
 char Lora_Downward_message[10];                         //message from the gateway

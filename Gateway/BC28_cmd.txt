@@ -1,0 +1,30 @@
+AT+NCONFIG=AUTOCONNECT,FALSE     //设置手动入网
+
+AT+NRB         //重启模组
+
+AT+NBAND=8      //指定Band值
+
+AT+CFUN=1     // 设置最大功能模式
+
+AT+CEDRXS=0,5   // 关闭模组eDRX功能
+
+AT+CPSMS=0     // 关闭模组PSM功能
+
+AT+CGATT=1     // 触发网络附着
+
+AT+CGATT?      //  检查是否成功入网
+
+AT+QMTCFG="aliauth",0,"a16JAzUMgmh","Light001","fUJxnoPDFJazr0eME5wKzCvKyNJwLqq7"
+
+AT+QMTOPEN=0,"iot-as-mqtt.cn-shanghai.aliyuncs.com",1883  //等待返回值 +QMTOPEN: 0,0 
+
+AT+QMTCONN=0,"Light001"
+
+AT+QMTSUB=0,1,"/a16JAzUMgmh/Light001/user/get",0
+
+AT+QMTPUB=0,0,0,0,"/a16JAzUMgmh/Light001/user/update"
+>            //按CTRL+Z结束
+
+AT+QMTDISC=0
+
+AT+QMTCLOSE=0
