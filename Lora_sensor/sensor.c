@@ -135,7 +135,8 @@ int proc_data(char* Sensor_Back_data,int Data_len,char* Sensor_Upload_message){
     
     Sensor_Upload_message[25] = Check_Byte;
     Sensor_Upload_message[26] = 0XEF;
-    Sensor_Upload_message[27] = 0XEF;     //This is data part of message that received from the sensor         
+    Sensor_Upload_message[27] = 0XEF;     //This is data part of message that received from the sensor
+    puts("\nsensor data processed\n");
     return 0;
 }
 

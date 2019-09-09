@@ -157,7 +157,7 @@ int Bridging_Module_Whitelist(char* Bridging_Module_Whitelist_Return, int adress
  * @return                              the flag that Whether the function is successfully executed. 1 is successfully
  */
 int Lora_Data_Send(char *Lora_data, int data_len, int Destination_adress_high, int Destination_adress_low){
-    char Send_Data[1000];
+    char Send_Data[100];
     int i = 0;
     int send_back = 0;
     Send_Data[0] = Destination_adress_high;
@@ -167,7 +167,8 @@ int Lora_Data_Send(char *Lora_data, int data_len, int Destination_adress_high, i
     }
     Send_Data[2 + i] = '\n';
     data_len = data_len + 2;
-    send_back=U2_strSend(Send_Data, data_len);
+
+    send_back = U2_strSend(Send_Data, data_len);
     if(send_back == data_len){
         puts("successfully send!\n");
         return 1;
@@ -201,7 +202,7 @@ int Lora_test(){
 int Lora_Data_Receive(char* Receive_data, int Receive_data_len){
     int data_len = U2_strRec(Receive_data, Receive_data_len);
     if(data_len == Receive_data_len){
-        puts("Lora successfully receive\n");
+        //puts("Lora successfully receive\n");
         return 1;
     }
     return 0;

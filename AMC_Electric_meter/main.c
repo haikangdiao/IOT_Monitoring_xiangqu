@@ -28,15 +28,19 @@
 char Uart2_interrupt_flag[1] = {0x0};                                                   //flag that whether there is message download from gateway
 char Lora_Downward_message[10];                                                         //message from the gateway
 
-void user_interrupt(){
+void interrupt(){
     int i_flag = 0;
-    i_flag=Lora_Data_Receive(Lora_Downward_message,6);                                  //receive the message
+    i_flag=Lora_Data_Receive(Lora_Downward_message,8);                                  //receive the message
     if(i_flag == 1)                                                                     //verify that the message is received correctly
         *Uart2_interrupt_flag = 0x1;
     else
         *Uart2_interrupt_flag = 0x2;                                                    //0x1 means correct, 0x2 means wrong
     MemoryWrite32(U2_CLRIRQ_REG,0x01);                                                  //clear the interrupt flag
 }
+
+void p1_interrupt(){}
+
+void p1_main(){}
 
 int main(){
     U1_Init(); 
@@ -63,7 +67,7 @@ int main(){
         {
             if (Uart2_interrupt_flag[0] == 0x1)
             {
-                if ((Lora_Downward_message[2] == 0xDD) && (Lora_Downward_message[3] == 0xDD))
+                if ((Lora_Downward_message[4] == 0xDD) && (Lora_Downward_message[5] == 0xDD))
                 {                                                                       //means that device need upload sensor message
 
                     AMC_Read_Configuration(AMC_Device_Adress, AMC_Register_First_Adress, AMC_Register_Number, AMC_Back_data);
@@ -78,7 +82,7 @@ int main(){
                     puts("send message successfully!\n");
                 }
                 else{
-                switch (Lora_Downward_message[3])                                       //other message meaning 
+                switch (Lora_Downward_message[5])                                       //other message meaning 
                 {
                 case 0x00:                                                              //gateway have received the correct message
                     puts("message send successfully!\n");
@@ -99,10 +103,14 @@ int main(){
                     puts("another error!!!\n");
                     break;
                 }
-                Lora_Data_Send(AMC_Upload_message, Upload_message_len, Gateway_Lora_adress_high, Gateway_Lora_adress_low);
+                //Lora_Data_Send(AMC_Upload_message, Upload_message_len, Gateway_Lora_adress_high, Gateway_Lora_adress_low);
             }
             Uart2_interrupt_flag[0] = 0;                                                
             MemoryWrite32(U2_CTL0_REG, 0x11);                                          //reopen UART2 interrupt enable bit
+        }
+        else{
+            if(Uart2_interrupt_flag[0]==0x2)
+                puts("interrupt error\n");
         }
         
     }

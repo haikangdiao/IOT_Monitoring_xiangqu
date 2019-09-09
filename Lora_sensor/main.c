@@ -28,15 +28,21 @@
 char Uart2_interrupt_flag[1] = {0x0};                                                   //flag that whether there is message download from gateway
 char Lora_Downward_message[10];                                                         //message from the gateway
 
-void user_interrupt(){
+void interrupt(){
     int i_flag = 0;
-    i_flag=Lora_Data_Receive(Lora_Downward_message,6);                                  //receive the message
+    
+    i_flag=Lora_Data_Receive(Lora_Downward_message,8);
+    puts("interrupt OK\n");                                                             //receive the message
     if(i_flag == 1)                                                                     //verify that the message is received correctly
         *Uart2_interrupt_flag = 0x1;
     else
         *Uart2_interrupt_flag = 0x2;                                                    //0x1 means correct, 0x2 means wrong
     MemoryWrite32(U2_CLRIRQ_REG,0x01);                                                  //clear the interrupt flag
 }
+
+void p1_interrupt(){}
+
+void p1_main(){}
 
 int main(){
     U1_Init(); 
@@ -48,12 +54,15 @@ int main(){
     puts("test1 begin!\n");
     MemoryWrite32(U2_CTL0_REG, 0x11);                                                   //UART2 interrupt enable
     MemoryWrite32(0x1f800700,  0x01);                                                   //systerm interrupt enable
+
     for (i = 0; i < 2000000;i++){}                                                      //delay a little time
     get_sensor_data(Sensor_Back_data,Sensor_Back_data_len);            
     proc_data(Sensor_Back_data, 50, Sensor_Upload_message);         
     while(1){
+        //MemoryWrite32(U2_CTL0_REG, 0x11); 
         if(Uart2_interrupt_flag[0] == 0x1){
-            if((Lora_Downward_message[2]==0xDD) && (Lora_Downward_message[3]==0xDD)){   //means that device need upload sensor message
+            puts("new command\n");
+            if((Lora_Downward_message[4]==0xDD) && (Lora_Downward_message[5]==0xDD)){   //means that device need upload sensor message
                 
                 get_sensor_data(Sensor_Back_data,Sensor_Back_data_len);
                 flag=proc_data(Sensor_Back_data, 50, Sensor_Upload_message);
@@ -66,7 +75,7 @@ int main(){
                 puts("send message successfully!\n");
             }
             else{
-                switch (Lora_Downward_message[3])                                       //other message meaning 
+                switch (Lora_Downward_message[5])                                       //other message meaning 
                 {
                 case 0x00:                                                              //gateway have received the correct message
                     puts("message send successfully!\n");
@@ -87,13 +96,17 @@ int main(){
                     puts("another error!!!\n");
                     break;
                 }
-                Lora_Data_Send(Sensor_Upload_message, Upload_message_len, Gateway_Lora_adress_high, Gateway_Lora_adress_low);
+                //Lora_Data_Send(Sensor_Upload_message, Upload_message_len, Gateway_Lora_adress_high, Gateway_Lora_adress_low);
             }
             Uart2_interrupt_flag[0] = 0;                                                
             MemoryWrite32(U2_CTL0_REG, 0x11);                                          //reopen UART2 interrupt enable bit
+
         }
-        
-    }
+        else{
+            if(Uart2_interrupt_flag[0]==0x2)
+                puts("interrupt error\n");
+        }
+    }    
         
     return 0;
 }
